@@ -1,14 +1,17 @@
 from random import random, choice
 
+from Phrase import Phrase
+
 
 class DecisionMaker:
-    def __init__(self):
+    def __init__(self, language):
         self.source_set = '0123456789'
         self.possible_answers_set = [0, 1, 2, 3, 4, 10, 11, 12, 13, 20, 21, 22, 30, 40]
         self.full = []
         self.get_full(self.source_set)
         self.decisions_field = self.full
         self.secret_code = self.pick()
+        self.language = language
 
     def pick(self):
         """
@@ -87,11 +90,14 @@ class DecisionMaker:
     # after_sort = {'0123':[360, 120, 20, ...], ...}
     def get_all_baskets_amounts(self, guess_field):
         baskets = {}
+        i = 1
         for number in guess_field:
-            print('\r Analyzing... ' + f"{int(number)/(len(guess_field) * 2): .1%}", end='')
+            print(f"\r {Phrase.analyzing[self.language]} {i/(len(guess_field)): .1%}", end='')
             baskets[number] = self.get_baskets_amounts(number)
-        print('\n')
+            i += 1
+        print('\r ')
         after_sort = dict(sorted(baskets.items(), key=lambda item: item[1]))
+
         return after_sort
 
     @staticmethod
@@ -104,7 +110,8 @@ class DecisionMaker:
         return shallowest
 
     # use the function in optimization whey guess_field < full
-    def get_optimal_list(self, guess, response, guess_field):
+    # def get_optimal_list(self, guess, response, guess_field):
+    def get_optimal_list(self, guess_field):
         baskets = self.get_all_baskets_amounts(guess_field)
         optimal_list = DecisionMaker.get_shallowest_baskets(baskets)
         return optimal_list
@@ -113,12 +120,11 @@ class DecisionMaker:
         optimization = False
         if len(self.decisions_field) == len(self.full):
             optimization = True
-        # self.narrow_decisions_field(guess, response)
         if optimization:
             return self.get_second_guess_optimising(guess, response)
         else:
             self.narrow_decisions_field(guess, response)
-            optimal_list = self.get_optimal_list(guess, response, self.full)
+            optimal_list = self.get_optimal_list(self.full)
             return choice(optimal_list)
 
     def get_second_guess_optimising(self, guess, response):
@@ -128,18 +134,18 @@ class DecisionMaker:
         elif response == 1:
             next_guess = choice(distribution[1])
         elif response == 2:
-            optimal_list = self.get_optimal_list(guess, response, distribution[3])
+            optimal_list = self.get_optimal_list(distribution[3])
             next_guess = choice(optimal_list)
         elif response == 3:
-            optimal_list = self.get_optimal_list(guess, response, distribution[2])
+            optimal_list = self.get_optimal_list(distribution[2])
             next_guess = choice(optimal_list)
         elif response == 4:
-            optimal_list = self.get_optimal_list(guess, response, distribution[3] + distribution[13])
+            optimal_list = self.get_optimal_list(distribution[3] + distribution[13])
             next_guess = choice(optimal_list)
         elif response == 10 or response == 11 or response == 12 or response == 30:
             next_guess = choice(distribution[20])
         elif response == 13:
-            optimal_list = self.get_optimal_list(guess, response, distribution[3] + distribution[12] + distribution[21])
+            optimal_list = self.get_optimal_list(distribution[3] + distribution[12] + distribution[21])
             next_guess = choice(optimal_list)
         elif response == 20 or response == 21:
             next_guess = choice(distribution[11])
@@ -149,6 +155,3 @@ class DecisionMaker:
             next_guess = choice(distribution[11] + distribution[12])
         self.narrow_decisions_field(guess, response)
         return next_guess
-
-
-

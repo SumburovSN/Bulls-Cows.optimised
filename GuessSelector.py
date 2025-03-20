@@ -1,17 +1,19 @@
 class GuessSelector:
     possible_answers_set = [0, 1, 2, 3, 4, 10, 11, 12, 13, 20, 21, 22, 30, 40]
 
-    def __init__(self, full):
-        self.full = full
+    # def __init__(self):
+    #     self.full = self.get_full()
+
+    @staticmethod
+    def get_full(full, source_set, subset=''):
+        if len(subset) == 4:
+            full.append(subset)
+        else:
+            for symbol in source_set:
+                GuessSelector.get_full(full, source_set.replace(symbol, ''), subset + symbol)
 
     @staticmethod
     def get_bulls_cows(secret_code, guess):
-        """
-        the function gets answer for "Bulls&Cows" game by comparison 2 given codes
-        :param secret_code: the string consisted of 4 different numeric symbols to be recognised
-        :param guess: the string consisted of 4 different numeric symbols as an attempt to recognise the secret_code
-        :return result: the number of template, e.g. 12 - 1 bull and 2 cows
-        """
         bulls = 0
         cows = 0
         # check every 4 symbols of the attempt against the riddle
@@ -79,5 +81,3 @@ class GuessSelector:
         guess_field = self.full
         baskets = GuessSelector.get_all_baskets_amounts(decisions_field, guess_field)
         GuessSelector.get_shallowest_baskets()
-
-
